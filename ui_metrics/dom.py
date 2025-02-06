@@ -19,8 +19,9 @@ class MockElement:
         child.remove()
 
     @property
-    def lastElementChild(self) -> MockElement:
-        return self.children[-1]
+    def lastElementChild(self) -> MockElement | None:
+        if self.children:
+            return self.children[-1]
 
     def setAttribute(self, name: str, value: str) -> None:
         pass
@@ -33,14 +34,14 @@ class MockElement:
 class MockDocument:
     def __init__(self) -> None:
         self.element_seq: list[MockElement] = []
-        self.createElement('body')
+        self.body = self.createElement('body')
 
     def createElement(self, tag_name) -> MockElement:
         element = MockElement(tag_name, self)
         self.element_seq.append(element)
         return element
 
-    def _filter_elements(self, function: Callable[[MockElement], list[MockElement]]) -> list[MockElement]:
+    def _filter_elements(self, function: Callable[[MockElement], bool]) -> list[MockElement]:
         return list(
             filter(
                 function,
